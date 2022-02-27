@@ -38,3 +38,7 @@ Makefile.dep
 .ccls-cache/*
 compile_commands.json
 redis.code-workspace
+build
+deps/hdr_histogram/libhdrhistogram.a
+deps/jemalloc/configure*
+deps/linenoise/liblinenoise.a
