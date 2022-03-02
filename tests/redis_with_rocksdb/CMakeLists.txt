@@ -11,7 +11,7 @@ target_link_libraries(${PROJECT_UT_BINARY}
         gtest
         gmock
         gmock_main
-        ${PROJECT_LIBRARY}
+        ${PROJECT_BINARY}lib
 )
 target_compile_features(${PROJECT_UT_BINARY} PRIVATE cxx_std_11)
 add_test(

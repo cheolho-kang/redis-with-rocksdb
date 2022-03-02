@@ -6,7 +6,6 @@ project(${project_NAME}
         DESCRIPTION "Key-Value Stroe NoSQL based on redis that use rocksdb as backend engines"
 )
 set(PROJECT_BINARY ${project_NAME})
-set(PROJECT_LIBRARY ${project_NAME}lib)
 set(PROJECT_UT_BINARY unit_test)
 set(CMAKE_VERBOSE_MAKEFILE false)
 
@@ -28,6 +27,8 @@ include(cmake/lua.cmake)
 include(cmake/hiredis.cmake)
 include(cmake/hdr_histogram.cmake)
 include(cmake/linenoise.cmake)
+include(cmake/snappy.cmake)
+include(cmake/rocksdb.cmake)
 
 list(APPEND EXTERNAL_LIBS PRIVATE ${jemalloc_LIBRARIES})
 list(APPEND EXTERNAL_INCS PRIVATE ${jemalloc_INCLUDE_DIRS})
@@ -43,6 +44,12 @@ list(APPEND EXTERNAL_INCS PRIVATE ${hdr_histogram_INCLUDE_DIRS})
 
 list(APPEND EXTERNAL_LIBS PRIVATE ${linenoise_LIBRARIES})
 list(APPEND EXTERNAL_INCS PRIVATE ${linenoise_INCLUDE_DIRS})
+
+list(APPEND EXTERNAL_LIBS PRIVATE ${snappy_LIBRARIES})
+list(APPEND EXTERNAL_INCS PRIVATE ${snappy_INCLUDE_DIRS})
+
+list(APPEND EXTERNAL_LIBS PRIVATE ${rocksdb_LIBRARIES})
+list(APPEND EXTERNAL_INCS PRIVATE ${rocksdb_INCLUDE_DIRS})
 
 
 # End dependencies

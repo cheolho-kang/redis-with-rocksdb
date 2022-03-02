@@ -1,0 +1,8 @@
+[submodule "deps/rocksdb"]
+	path = deps/rocksdb
+	url = https://github.com/cheolho-kang/rocksdb.git
+    ignore = dirty
+[submodule "deps/snappy"]
+	path = external/snappy
+	url = https://github.com/google/snappy.git
+    ignore = dirty

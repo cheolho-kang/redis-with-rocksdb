@@ -105,25 +105,24 @@ set(client_src
 
 # Set target
 add_executable(${PROJECT_BINARY} ${server_src})
-add_dependencies(${PROJECT_BINARY} jemalloc lua hiredis)
-target_compile_features(${PROJECT_BINARY} PRIVATE cxx_std_11)
-target_compile_options(${PROJECT_BINARY} PRIVATE -Wall -Wpedantic -g -Wsign-compare -Wreturn-type -fno-omit-frame-pointer -O0 -pthread)
+add_dependencies(${PROJECT_BINARY} jemalloc lua hiredis rocksdb snappy)
+set_target_properties(${PROJECT_BINARY} PROPERTIES LINKER_LANGUAGE CXX)
+target_compile_options(${PROJECT_BINARY} PRIVATE -Wall -Wpedantic -g -Wsign-compare -Wreturn-type -fno-omit-frame-pointer -O0)
 target_include_directories(${PROJECT_BINARY} ${EXTERNAL_INCS})
 target_link_libraries(${PROJECT_BINARY} ${EXTERNAL_LIBS})
 
 # Set client
 add_executable(redis-cli ${client_src})
-add_dependencies(redis-cli jemalloc hiredis hdr_histogram linenoise)
-target_compile_features(redis-cli PRIVATE cxx_std_11)
+add_dependencies(redis-cli jemalloc hiredis hdr_histogram linenoise rocksdb)
 target_compile_options(redis-cli  PRIVATE -Wall -Wpedantic -g -Wsign-compare -Wreturn-type -fno-omit-frame-pointer -O0 -pthread)
 target_include_directories(redis-cli  ${EXTERNAL_INCS})
 target_link_libraries(redis-cli  PRIVATE ${EXTERNAL_LIBS})
 
 # Set library
-add_library(${PROJECT_LIBRARY}
+add_library(${PROJECT_BINARY}lib
     STATIC ${server_src}
 )
-add_dependencies(${PROJECT_LIBRARY} jemalloc lua hiredis)
-target_compile_features(${PROJECT_LIBRARY} PRIVATE cxx_std_11)
-target_compile_options(${PROJECT_LIBRARY} PRIVATE -Wall -Wpedantic -g -Wsign-compare -Wreturn-type -fno-omit-frame-pointer -O0 -pthread)
-target_include_directories(${PROJECT_LIBRARY} ${EXTERNAL_INCS})
+add_dependencies(${PROJECT_BINARY}lib jemalloc lua hiredis rocksdb)
+target_compile_features(${PROJECT_BINARY}lib PRIVATE cxx_std_11)
+target_compile_options(${PROJECT_BINARY}lib PRIVATE -Wall -Wpedantic -g -Wsign-compare -Wreturn-type -fno-omit-frame-pointer -O0 -pthread)
+target_include_directories(${PROJECT_BINARY}lib ${EXTERNAL_INCS})
