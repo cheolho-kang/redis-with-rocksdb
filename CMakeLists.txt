@@ -51,6 +51,7 @@ list(APPEND EXTERNAL_INCS PRIVATE ${snappy_INCLUDE_DIRS})
 list(APPEND EXTERNAL_LIBS PRIVATE ${rocksdb_LIBRARIES})
 list(APPEND EXTERNAL_INCS PRIVATE ${rocksdb_INCLUDE_DIRS})
 
+list(APPEND EXTERNAL_INCS PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # End dependencies
 
@@ -63,4 +64,4 @@ endif()
 add_subdirectory(src)
 
 # Unit-test target
-add_subdirectory(tests/redis_with_rocksdb)
+add_subdirectory(tests/unit_test)

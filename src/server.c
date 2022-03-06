@@ -2637,6 +2637,14 @@ void initServerConfig(void) {
     server.runid[CONFIG_RUN_ID_SIZE] = '\0';
     changeReplicationId();
     clearReplicationId2();
+
+#ifdef ROCKSDB
+    server.rocksdb_path = zstrdup(ROCKSDB_PATH);
+    server.rocksdb_write_buffer_size_mb = ROCKSDB_WRITE_BUFFER_SIZE_MB;
+    server.rocksdb_loglevel = LL_WARNING;
+    server.rocksdb_block_cache_size_mb = ROCKSDB_BLOCK_CACHE_SIZE_MB;
+    server.rocksdb_options_set_max_bytes_for_level_multiplier = ROCKSDB_LEVEL_MULTIPLIER;
+#endif
     server.hz = CONFIG_DEFAULT_HZ; /* Initialize it ASAP, even if it may get
                                       updated later after loading the config.
                                       This value may be used before the server
@@ -3138,6 +3146,98 @@ void makeThreadKillable(void) {
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 }
 
+#ifdef ROCKSDB
+struct rocksdb_options_t *initRocksdbOptions(void) {
+    // TODO (cheolho.kang): Deallocate options when close
+    struct rocksdb_options_t *options = rocksdb_options_create();
+    // if (server.rocksdb_path != NULL) {
+    // 	rocksdb_options_append_db_path(options, server.rocksdb_path, 0);
+    // }
+
+    rocksdb_options_set_create_if_missing(options, 1);
+    if (server.rocksdb_loglevel == LL_WARNING)
+        rocksdb_options_set_info_log_level(options, 2);
+    else if (server.rocksdb_loglevel == LL_DEBUG)
+        rocksdb_options_set_info_log_level(options, 0);
+    else
+        rocksdb_options_set_info_log_level(options, 2);
+
+    // TODO (cheolho.kang): Check this about performacne
+    rocksdb_options_increase_parallelism(options, 6); // 2 for flush thread, max 2 for compaction threads
+    rocksdb_options_set_max_background_compactions(options, 3);
+    rocksdb_options_set_max_background_flushes(options, 3);
+
+    rocksdb_options_optimize_level_style_compaction(options, server.rocksdb_write_buffer_size_mb * 4 * 1024 * 1024);
+
+    rocksdb_options_enable_statistics(options);
+    return options;
+}
+
+rocksdb_t *initRocksDB(rocksdb_options_t *options, char *db_path, int dbnum) {
+    rocksdb_t *db;
+    char *DBName = NULL;
+    char *err = NULL;
+    size_t cfs_num = 0;
+    char **column_families = NULL;
+    unsigned int i = 0;
+    DBName = zmalloc(strlen(db_path) + 3);
+
+    sprintf(DBName, "%s_%d", db_path, dbnum);
+
+    db = rocksdb_open(options, DBName, &err);
+
+    if (err) {
+        serverLog(LL_WARNING, "[RocksDB] open failed caused by %s", err);
+        free(err);
+        err = NULL;
+        serverPanic("[RocksDB] open rocksdb failed");
+    }
+
+    // if (db != NULL)
+    //     rocksdb_close(db);
+
+    // column_families = rocksdb_list_column_families(options, DBName, &cfs_num, &err);
+
+    // if (err) {
+    //     serverLog(LL_WARNING, "[RocksDB] list column families failed caused by %s", err);
+    //     free(err);
+    //     err = NULL;
+    //     serverPanic("[RocksDB] list column families failed");
+    // }
+
+    // rocksdb_options_t **cfs_options = zmalloc(sizeof(rocksdb_options_t *) * cfs_num);
+
+    // for (i = 0; i < cfs_num; i++) {
+    //     cfs_options[i] = options;
+    // }
+
+    // rocksdb_column_family_handle_t **handles = zmalloc(sizeof(rocksdb_column_family_handle_t *) * cfs_num);
+
+    // db = rocksdb_open_column_families(options, DBName, cfs_num, (const char **)column_families,
+    //                                   (const rocksdb_options_t **)cfs_options, handles, &err);
+    // if (err) {
+    //     serverLog(LL_WARNING, "[RocksDB] open database from column families failed caused by %s", err);
+    //     free(err);
+    //     err = NULL;
+    //     serverPanic("[RocksDB] open column families failed");
+    // }
+
+    // cleanup
+    zfree(DBName);
+    // zfree(cfs_options);
+    // rocksdb_list_column_families_destroy(column_families, cfs_num);
+    // for (uint32_t i = 0; i < cfs_num; i++) {
+    //     assert(handles[i] != NULL);
+    //     rocksdb_column_family_handle_destroy(handles[i]);
+    // }
+    // zfree(handles);
+
+    serverLog(LL_WARNING, "[RocksDB] rocksdb is successfully opened");
+
+    return db;
+}
+#endif
+
 void initServer(void) {
     int j;
 
@@ -3233,6 +3333,10 @@ void initServer(void) {
 
     /* Create the Redis databases, and initialize other internal state. */
     for (j = 0; j < server.dbnum; j++) {
+#ifdef ROCKSDB
+        server.db[j].rocksdb_options = initRocksdbOptions();
+        server.db[j].rocksdb = initRocksDB(server.db[j].rocksdb_options, server.rocksdb_path, j);
+#endif
         server.db[j].dict = dictCreate(&dbDictType,NULL);
         server.db[j].expires = dictCreate(&dbExpiresDictType,NULL);
         server.db[j].expires_cursor = 0;
@@ -6153,6 +6257,7 @@ redisTestProc *getTestProcByName(const char *name) {
 }
 #endif
 
+#ifndef BUILDLIBRARY
 int main(int argc, char **argv) {
     struct timeval tv;
     int j;
@@ -6402,5 +6507,5 @@ int main(int argc, char **argv) {
     aeDeleteEventLoop(server.el);
     return 0;
 }
-
+#endif
 /* The End */

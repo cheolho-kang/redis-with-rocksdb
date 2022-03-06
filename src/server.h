@@ -51,6 +51,10 @@
 #include <lua.h>
 #include <signal.h>
 
+#ifdef ROCKSDB
+#include "rocksdb/c.h"
+#endif
+
 #ifdef HAVE_LIBSYSTEMD
 #include <systemd/sd-daemon.h>
 #endif
@@ -89,6 +93,13 @@ typedef long long ustime_t; /* microsecond time type. */
 #define C_ERR                   -1
 
 /* Static server configuration */
+#ifdef ROCKSDB
+#define ROCKSDB_PATH "/tmp/redis_rocksdb"       /* rocksdb database path */
+#define ROCKSDB_BLOCK_CACHE_SIZE_MB 64
+#define ROCKSDB_WRITE_BUFFER_SIZE_MB 64
+#define ROCKSDB_LEVEL_MULTIPLIER 10;
+#endif
+
 #define CONFIG_DEFAULT_HZ        10             /* Time interrupt calls/sec. */
 #define CONFIG_MIN_HZ            1
 #define CONFIG_MAX_HZ            500
@@ -718,6 +729,10 @@ typedef struct redisDb {
     long long avg_ttl;          /* Average TTL, just for stats */
     unsigned long expires_cursor; /* Cursor of the active expire cycle. */
     list *defrag_later;         /* List of key names to attempt to defrag one by one, gradually. */
+#ifdef ROCKSDB
+    struct rocksdb_t *rocksdb;
+    struct rocksdb_options_t *rocksdb_options; /* options of rocksdb */
+#endif
 } redisDb;
 
 /* Declare database backup that include redis main DBs and slots to keys map.
@@ -1162,6 +1177,14 @@ typedef enum childInfoType {
 } childInfoType;
 
 struct redisServer {
+#ifdef ROCKSDB
+    /* RocksDB tiers */
+    char *rocksdb_path;
+    int rocksdb_loglevel;
+    int rocksdb_write_buffer_size_mb;                       /* Memory size of a single rocksdb write buffer */
+    int rocksdb_block_cache_size_mb;                        /* memory size of a rocksdb block cache */
+    int rocksdb_options_set_max_bytes_for_level_multiplier; /* Multiplier of LSM tree level file size */
+#endif
     /* General */
     pid_t pid;                  /* Main process pid. */
     pthread_t main_thread_id;         /* Main thread id */
@@ -1602,8 +1625,9 @@ struct redisServer {
     int acl_pubsub_default;      /* Default ACL pub/sub channels flag */
     /* Assert & bug reporting */
     int watchdog_period;  /* Software watchdog period in ms. 0 = off */
+
     /* System hardware info */
-    size_t system_memory_size;  /* Total memory in system as reported by OS */
+    size_t system_memory_size;  /* Total memory inㅁㄴㅇㅁㄴㅇ system as reported by OS */
     /* TLS Configuration */
     int tls_cluster;
     int tls_replication;

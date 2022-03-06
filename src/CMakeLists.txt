@@ -110,6 +110,7 @@ set_target_properties(${PROJECT_BINARY} PROPERTIES LINKER_LANGUAGE CXX)
 target_compile_options(${PROJECT_BINARY} PRIVATE -Wall -Wpedantic -g -Wsign-compare -Wreturn-type -fno-omit-frame-pointer -O0)
 target_include_directories(${PROJECT_BINARY} ${EXTERNAL_INCS})
 target_link_libraries(${PROJECT_BINARY} ${EXTERNAL_LIBS})
+target_compile_definitions(${PROJECT_BINARY} PRIVATE -DROCKSDB)
 
 # Set client
 add_executable(redis-cli ${client_src})
@@ -126,3 +127,4 @@ add_dependencies(${PROJECT_BINARY}lib jemalloc lua hiredis rocksdb)
 target_compile_features(${PROJECT_BINARY}lib PRIVATE cxx_std_11)
 target_compile_options(${PROJECT_BINARY}lib PRIVATE -Wall -Wpedantic -g -Wsign-compare -Wreturn-type -fno-omit-frame-pointer -O0 -pthread)
 target_include_directories(${PROJECT_BINARY}lib ${EXTERNAL_INCS})
+target_compile_definitions(${PROJECT_BINARY}lib PRIVATE -DBUILDLIBRARY -DROCKSDB)

@@ -607,6 +607,35 @@ void loadServerConfigFromString(char *config) {
                 }
                 queueSentinelConfig(argv+1,argc-1,linenum,lines[i]);
             }
+#ifdef ROCKSDB
+        } else if (!strcasecmp(argv[0], "rocksdb-path") && argc == 2) {
+            zfree(server.rocksdb_path);
+            server.rocksdb_path = zstrdup(argv[1]);
+        } else if (!strcasecmp(argv[0], "rocksdb-loglevel") && argc == 2) {
+            if (!strcasecmp(argv[1], "warning")) {
+                server.rocksdb_loglevel = LL_WARNING;
+            } else if (!strcasecmp(argv[1], "debug")) {
+                server.rocksdb_loglevel = LL_DEBUG;
+            }
+        } else if (!strcasecmp(argv[0], "rocksdb-write-buffer-size-mb") && argc == 2) {
+            server.rocksdb_write_buffer_size_mb = atoi(argv[1]);
+            if (server.rocksdb_write_buffer_size_mb < 0) {
+                err = "minus value is not allowed for rocksdb-write-buffer-size-mb";
+                goto loaderr;
+            }
+        } else if (!strcasecmp(argv[0], "rocksdb-block-cache-size-mb") && argc == 2) {
+            server.rocksdb_block_cache_size_mb = atoi(argv[1]);
+            if (server.rocksdb_block_cache_size_mb < 0) {
+                err = "minus value is not allowed for rocksdb-block-cache-size-mb";
+                goto loaderr;
+            }
+        } else if (!strcasecmp(argv[0], "rocksdb-options-set-max-bytes-for-level-multiplier") && argc == 2) {
+            server.rocksdb_options_set_max_bytes_for_level_multiplier = atoi(argv[1]);
+            if (server.rocksdb_options_set_max_bytes_for_level_multiplier < 0) {
+                err = "minus value is not allowed for rocksdb-options-set-max-bytes-for-level_multiplier";
+                goto loaderr;
+            }
+#endif
         } else {
             err = "Bad directive or wrong number of arguments"; goto loaderr;
         }
