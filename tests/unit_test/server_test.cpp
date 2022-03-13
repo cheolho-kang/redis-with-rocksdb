@@ -1,12 +1,11 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <iostream>
 #include <string>
 
-#include "rocksdb/advanced_options.h"
-#include "rocksdb/env.h"
 #include "fake/rocksdb_spy.h"
 #include "fake/server_spy.h"
+#include "rocksdb/advanced_options.h"
+#include "rocksdb/env.h"
 
 using namespace testing;
 

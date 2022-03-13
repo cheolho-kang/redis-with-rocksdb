@@ -6257,7 +6257,7 @@ redisTestProc *getTestProcByName(const char *name) {
 }
 #endif
 
-#ifndef BUILDLIBRARY
+#ifndef UNIT_TEST
 int main(int argc, char **argv) {
     struct timeval tv;
     int j;

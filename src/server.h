@@ -511,6 +511,12 @@ typedef enum {
 /*-----------------------------------------------------------------------------
  * Data types
  *----------------------------------------------------------------------------*/
+#ifdef ROCKSDB
+/* The location of a redis object. */
+#define LOC_REDIS 0
+#define LOC_FLUSHING 1
+#define LOC_ROCKSDB 2
+#endif
 
 /* A redis object, that is a type able to hold a string / list / set */
 
@@ -682,6 +688,8 @@ typedef struct RedisModuleDigest {
 #define OBJ_STATIC_REFCOUNT (INT_MAX-1) /* Object allocated in the stack. */
 #define OBJ_FIRST_SPECIAL_REFCOUNT OBJ_STATIC_REFCOUNT
 typedef struct redisObject {
+    volatile unsigned where : 2;    /* Indicat the location of object */
+                                    /* 0: REDIS, 1: FLUSHING, 2: ROCKSDB */
     unsigned type:4;
     unsigned encoding:4;
     unsigned lru:LRU_BITS; /* LRU time (relative to global lru_clock) or

@@ -1,0 +1,25 @@
+#pragma once
+
+#include <gmock/gmock.h>
+
+using ::testing::NiceMock;
+
+#include "bio_spy.h"
+
+class MockBio : public BioMock {
+public:
+    MOCK_METHOD(void, BioSubmitJob, (int type, struct bio_job *job), (override));
+    MOCK_METHOD(void, BioCreateForFlush, (int type, int argCount, void* arg1, void* arg2, void* arg3), (override));
+};
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void spyBioSubmitJob(int type, struct bio_job *job);
+void spyBioCreateForFlush(int type, int arg_count, void *arg1, void *arg2, void *arg3);
+
+#ifdef __cplusplus
+}
+#endif

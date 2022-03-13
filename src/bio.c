@@ -134,6 +134,27 @@ void bioSubmitJob(int type, struct bio_job *job) {
     pthread_cond_signal(&bio_newjob_cond[type]);
     pthread_mutex_unlock(&bio_mutex[type]);
 }
+#ifdef UNIT_TEST
+void spyBioSubmitJob(int type, struct bio_job *job);
+#endif
+
+#ifdef ROCKSDB
+void bioCreateForFlush(int type, int arg_count, ...) {
+    struct bio_job *job = zmalloc(sizeof(*job) + sizeof(void *) * (arg_count));
+
+    va_list valist;
+    va_start(valist, arg_count);
+    for (int i = 0; i < arg_count; i++) {
+        job->free_args[i] = va_arg(valist, void *);
+    }
+    va_end(valist);
+#ifdef UNIT_TEST
+    spyBioSubmitJob(type, job);
+#else
+    bioSubmitJob(type, job);
+#endif
+}
+#endif
 
 void bioCreateLazyFreeJob(lazy_free_fn free_fn, int arg_count, ...) {
     va_list valist;

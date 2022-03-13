@@ -33,6 +33,9 @@
 #include "server.h"
 #include "bio.h"
 #include "atomicvar.h"
+#ifdef ROCKSDB
+#include "rocksdb_tier.h"
+#endif
 #include <math.h>
 
 /* ----------------------------------------------------------------------------
@@ -589,6 +592,9 @@ int performEvictions(void) {
                      * a ghost and we need to try the next element. */
                     if (de) {
                         bestkey = dictGetKey(de);
+#ifdef ROCKSDB
+                        flushDictToFlash(db, de);
+#endif
                         break;
                     } else {
                         /* Ghost... Iterate again. */
