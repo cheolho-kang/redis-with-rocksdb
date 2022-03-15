@@ -1,13 +1,15 @@
 #ifdef ROCKSDB
-#include "server.h"
+#include <sys/time.h>
+
 #include "bio.h"
+#include "server.h"
 
 #ifdef UNIT_TEST
-void spyBioCreateForFlush(int type, int arg_count, void* arg1, void* arg2, void* arg3);
+void spyBioCreateForFlush(int type, int arg_count, void *arg1, void *arg2, void *arg3);
 #endif
 
-int flushDictToFlash(redisDb *db, dictEntry *hashDataEntry){
-    if(hashDataEntry == NULL)
+int flushDictToFlash(redisDb *db, dictEntry *hashDataEntry) {
+    if (hashDataEntry == NULL)
         return C_ERR;
 
     sds flashKey = dictGetKey(hashDataEntry);
@@ -15,7 +17,7 @@ int flushDictToFlash(redisDb *db, dictEntry *hashDataEntry){
     hashDataObj->where = LOC_FLUSHING;
 
 #ifdef UNIT_TEST
-    spyBioCreateForFlush(BIO_FLUSH_TO_ROCKSDB, 3, (void*)db, (void*)flashKey, (void*)hashDataObj);
+    spyBioCreateForFlush(BIO_FLUSH_TO_ROCKSDB, 3, (void *)db, (void *)flashKey, (void *)hashDataObj);
 #else
     bioCreateForFlush(BIO_FLUSH_TO_ROCKSDB, 3, db, flashKey, hashDataObj);
 #endif

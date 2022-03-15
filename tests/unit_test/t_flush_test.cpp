@@ -12,8 +12,8 @@
 
 TEST(TFlushTest, flushDictToFlashIfExecutedSuccesfully) {
     // Given
-    extern MockBio *bio;
-    bio = new NiceMock<MockBio>;
+    extern MockBio *mockBio;
+    mockBio = new NiceMock<MockBio>;
 
     char const *expectArg2 = "Hello";
     char const *expectArg3 = "World";
@@ -26,7 +26,7 @@ TEST(TFlushTest, flushDictToFlashIfExecutedSuccesfully) {
     de.key = (void *)expectArg2;
     de.val = (void *)&robj;
 
-    ON_CALL(*bio, BioCreateForFlush).WillByDefault([&](int type, int argCount, void *arg1, void *arg2, void *arg3) {
+    ON_CALL(*mockBio, BioCreateForFlush).WillByDefault([&](int type, int argCount, void *arg1, void *arg2, void *arg3) {
         int expectArgCount = 3;
         EXPECT_EQ(expectArgCount, argCount);
 
@@ -44,13 +44,13 @@ TEST(TFlushTest, flushDictToFlashIfExecutedSuccesfully) {
 
     // Then
 
-    delete bio;
+    delete mockBio;
 }
 
 TEST(TFlushTest, flushDictToFlashWithBioCreateForFlushIfExecutedSuccesfully) {
     // Given
-    extern MockBio *bio;
-    bio = new NiceMock<MockBio>;
+    extern MockBio *mockBio;
+    mockBio = new NiceMock<MockBio>;
 
     char const *expectArg2 = "Hello";
     char const *expectArg3 = "World";
@@ -63,11 +63,11 @@ TEST(TFlushTest, flushDictToFlashWithBioCreateForFlushIfExecutedSuccesfully) {
     de.key = (void *)expectArg2;
     de.val = (void *)&robj;
 
-    ON_CALL(*bio, BioCreateForFlush).WillByDefault([&](int type, int argCount, void *arg1, void *arg2, void *arg3) {
+    ON_CALL(*mockBio, BioCreateForFlush).WillByDefault([&](int type, int argCount, void *arg1, void *arg2, void *arg3) {
         bioCreateForFlush(type, argCount, arg1, arg2, arg3);
-    });
+        });
 
-    ON_CALL(*bio, BioSubmitJob).WillByDefault([&](int type, struct bio_job *job) {
+    ON_CALL(*mockBio, BioSubmitJob).WillByDefault([&](int type, struct bio_job *job) {
         int expectType = 3;
         EXPECT_EQ(expectType, type);
         // EXPECT_EQ(expectArg1, *(char *)(job->free_args[0]));
@@ -80,5 +80,5 @@ TEST(TFlushTest, flushDictToFlashWithBioCreateForFlushIfExecutedSuccesfully) {
 
     // Then
 
-    delete bio;
+    delete mockBio;
 }

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.8)
 
 # Add target sources
 set(server_src
+    t_rocksdb.c
+    rocksdb_util_c++.cc
     adlist.c
     quicklist.c
     ae.c
@@ -23,7 +25,6 @@ set(server_src
     db.c
     replication.c
     rdb.c
-    t_flush.c
     t_string.c
     t_list.c
     t_set.c

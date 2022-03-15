@@ -60,6 +60,10 @@
 
 #include "server.h"
 #include "bio.h"
+#ifdef ROCKSDB
+#include "rocksdb/c.h"
+#include "rocksdb_util_c++.h"
+#endif
 
 static pthread_t bio_threads[BIO_NUM_OPS];
 static pthread_mutex_t bio_mutex[BIO_NUM_OPS];
@@ -185,6 +189,16 @@ void bioCreateFsyncJob(int fd) {
     bioSubmitJob(BIO_AOF_FSYNC, job);
 }
 
+#ifdef UNIT_TEST
+struct MockRocksdb;
+void spyRocksdb_put(
+    rocksdb_t* db,
+    const rocksdb_writeoptions_t* options,
+    const char* key, size_t keylen,
+    const char* val, size_t vallen,
+    char** errptr);
+#endif
+
 void *bioProcessBackgroundJobs(void *arg) {
     struct bio_job *job;
     unsigned long type = (unsigned long) arg;
@@ -207,6 +221,8 @@ void *bioProcessBackgroundJobs(void *arg) {
     case BIO_LAZY_FREE:
         redis_set_thread_title("bio_lazy_free");
         break;
+    case BIO_FLUSH_TO_ROCKSDB:
+        redis_set_thread_title("bio_flush_to_rocksdb");
     }
 
     redisSetCpuAffinity(server.bio_cpulist);
@@ -260,6 +276,33 @@ void *bioProcessBackgroundJobs(void *arg) {
             }
         } else if (type == BIO_LAZY_FREE) {
             job->free_fn(job->free_args);
+        } else if (type == BIO_FLUSH_TO_ROCKSDB) {
+            redisDb *db = (redisDb *)job->free_args[0];
+            sds flush_key = (sds)job->free_args[1];
+            robj *hash_data_obj = (robj *)job->free_args[2];
+            char *err = NULL;
+            objectList *objectList = createObjectList((void *)hash_data_obj);
+
+            rocksdb_writeoptions_t *writeoptions = rocksdb_writeoptions_create();
+            // TODO (cheolho.kang): Remove this after debugging
+            rocksdb_writeoptions_disable_WAL(writeoptions, 1);
+#ifdef UNIT_TEST
+            spyRocksdb_put((db->rocksdb), writeoptions, flush_key, strlen(flush_key), objectList->ptr,
+                           objectList->allocated_length, &err);
+#else
+            rocksdb_put(db->rocksdb, writeoptions, flush_key, strlen(flush_key), objectList->ptr,
+                        objectList->allocated_length, &err);
+#endif
+            if (err) {
+                // TODO (cheolho.kang): Remove this after debugging
+                // serverLog(LL_WARNING, "[RocksDB] rocksdb write errors");
+                serverPanic("[RocksDB] rocksdb write errors");
+                free(err);
+            }
+            hash_data_obj->where = LOC_ROCKSDB;
+            rocksdb_writeoptions_destroy(writeoptions);
+            zfree(hash_data_obj->ptr);
+            zfree(hash_data_obj);
         } else {
             serverPanic("Wrong job type in bioProcessBackgroundJobs().");
         }

@@ -39,4 +39,6 @@ Makefile.dep
 compile_commands.json
 redis.code-workspace
 build
-deps/
+deps/hdr_histogram/libhdrhistogram.a
+deps/jemalloc/configure*
+deps/linenoise/liblinenoise.a

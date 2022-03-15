@@ -9,8 +9,6 @@
 
 using namespace testing;
 
-extern struct redisServer server;
-
 class ServerTestFixture : public ::testing::Test {
   public:
     ServerTestFixture(void) {}
@@ -20,6 +18,9 @@ class ServerTestFixture : public ::testing::Test {
 };
 
 TEST_F(ServerTestFixture, initServerIfExecutedSuccesfully) {
+    // Given
+    extern struct redisServer server;
+
     // When
     initServerConfig();
 

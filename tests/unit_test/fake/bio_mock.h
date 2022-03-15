@@ -6,12 +6,19 @@ using ::testing::NiceMock;
 
 #include "bio_spy.h"
 
-class MockBio : public BioMock {
-public:
-    MOCK_METHOD(void, BioSubmitJob, (int type, struct bio_job *job), (override));
-    MOCK_METHOD(void, BioCreateForFlush, (int type, int argCount, void* arg1, void* arg2, void* arg3), (override));
-};
+class BioMock {
+  public:
+    BioMock(void){};
+    virtual ~BioMock(void){};
 
+    virtual void BioSubmitJob(int type, struct bio_job *job) = 0;
+    virtual void BioCreateForFlush(int type, int argCount, void *arg1, void *arg2, void *arg3) = 0;
+};
+class MockBio : public BioMock {
+  public:
+    MOCK_METHOD(void, BioSubmitJob, (int type, struct bio_job *job), (override));
+    MOCK_METHOD(void, BioCreateForFlush, (int type, int argCount, void *arg1, void *arg2, void *arg3), (override));
+};
 
 #ifdef __cplusplus
 extern "C" {

@@ -728,6 +728,10 @@ typedef struct clientReplyBlock {
  * by integers from 0 (the default database) up to the max configured
  * database. The database number is the 'id' field in the structure. */
 typedef struct redisDb {
+#ifdef ROCKSDB
+    struct rocksdb_t *rocksdb;
+    struct rocksdb_options_t *rocksdb_options; /* options of rocksdb */
+#endif
     dict *dict;                 /* The keyspace for this DB */
     dict *expires;              /* Timeout of keys with a timeout set */
     dict *blocking_keys;        /* Keys with clients waiting for data (BLPOP)*/
@@ -737,10 +741,6 @@ typedef struct redisDb {
     long long avg_ttl;          /* Average TTL, just for stats */
     unsigned long expires_cursor; /* Cursor of the active expire cycle. */
     list *defrag_later;         /* List of key names to attempt to defrag one by one, gradually. */
-#ifdef ROCKSDB
-    struct rocksdb_t *rocksdb;
-    struct rocksdb_options_t *rocksdb_options; /* options of rocksdb */
-#endif
 } redisDb;
 
 /* Declare database backup that include redis main DBs and slots to keys map.
