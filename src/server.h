@@ -97,7 +97,8 @@ typedef long long ustime_t; /* microsecond time type. */
 #define ROCKSDB_PATH "/tmp/redis_rocksdb"       /* rocksdb database path */
 #define ROCKSDB_BLOCK_CACHE_SIZE_MB 64
 #define ROCKSDB_WRITE_BUFFER_SIZE_MB 64
-#define ROCKSDB_LEVEL_MULTIPLIER 10;
+#define ROCKSDB_LEVEL_MULTIPLIER 10
+#define FLUSH_TRIGGER_RATIO_OF_MAXMEMORY 80
 #endif
 
 #define CONFIG_DEFAULT_HZ        10             /* Time interrupt calls/sec. */
@@ -1192,6 +1193,7 @@ struct redisServer {
     int rocksdb_write_buffer_size_mb;                       /* Memory size of a single rocksdb write buffer */
     int rocksdb_block_cache_size_mb;                        /* memory size of a rocksdb block cache */
     int rocksdb_options_set_max_bytes_for_level_multiplier; /* Multiplier of LSM tree level file size */
+    int flush_trigger_ratio_of_maxmemory;
 #endif
     /* General */
     pid_t pid;                  /* Main process pid. */

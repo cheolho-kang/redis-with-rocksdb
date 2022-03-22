@@ -635,6 +635,15 @@ void loadServerConfigFromString(char *config) {
                 err = "minus value is not allowed for rocksdb-options-set-max-bytes-for-level_multiplier";
                 goto loaderr;
             }
+        } else if (!strcasecmp(argv[0], "flush-trigger-ratio-of-maxmemory") && argc == 2) {
+            server.flush_trigger_ratio_of_maxmemory = atoi(argv[1]);
+            if (server.flush_trigger_ratio_of_maxmemory < 0) {
+                err = "minus value is not allowed for rocksdb-options-set-max-bytes-for-level_multiplier";
+                goto loaderr;
+            } else if (server.flush_trigger_ratio_of_maxmemory > 100) {
+                err = "flush-trigger-ratio-of-maxmemory should be equal to or smaller than 100%";
+                goto loaderr;
+            }
 #endif
         } else {
             err = "Bad directive or wrong number of arguments"; goto loaderr;

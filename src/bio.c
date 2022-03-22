@@ -301,8 +301,8 @@ void *bioProcessBackgroundJobs(void *arg) {
             }
             hash_data_obj->where = LOC_ROCKSDB;
             rocksdb_writeoptions_destroy(writeoptions);
-            zfree(hash_data_obj->ptr);
             zfree(hash_data_obj);
+            zfree(objectList);
         } else {
             serverPanic("Wrong job type in bioProcessBackgroundJobs().");
         }

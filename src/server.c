@@ -2644,6 +2644,7 @@ void initServerConfig(void) {
     server.rocksdb_loglevel = LL_WARNING;
     server.rocksdb_block_cache_size_mb = ROCKSDB_BLOCK_CACHE_SIZE_MB;
     server.rocksdb_options_set_max_bytes_for_level_multiplier = ROCKSDB_LEVEL_MULTIPLIER;
+    server.flush_trigger_ratio_of_maxmemory = FLUSH_TRIGGER_RATIO_OF_MAXMEMORY;
 #endif
     server.hz = CONFIG_DEFAULT_HZ; /* Initialize it ASAP, even if it may get
                                       updated later after loading the config.
