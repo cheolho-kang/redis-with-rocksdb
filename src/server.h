@@ -736,6 +736,7 @@ typedef struct redisDb {
 #ifdef ROCKSDB
     struct rocksdb_t *rocksdb;
     struct rocksdb_options_t *rocksdb_options; /* options of rocksdb */
+    void *queueForFlush;
 #endif
 #ifdef __cplusplus
     dict *_dict;

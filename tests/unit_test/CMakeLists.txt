@@ -6,7 +6,7 @@ add_executable(${PROJECT_UT_BINARY} ${test_files})
 
 # Add dependencies
 set_target_properties(${PROJECT_UT_BINARY} PROPERTIES LINKER_LANGUAGE CXX)
-target_include_directories(${PROJECT_UT_BINARY} ${EXTERNAL_INCS})
+target_include_directories(${PROJECT_UT_BINARY} ${EXTERNAL_INCS} .)
 target_link_libraries(${PROJECT_UT_BINARY}
     PUBLIC
         gtest

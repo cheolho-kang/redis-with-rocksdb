@@ -35,6 +35,7 @@
 #include "atomicvar.h"
 #ifdef ROCKSDB
 #include "rocksdb_tier.h"
+#include "rocksdb_util_c++.h"
 #endif
 #include <math.h>
 
@@ -488,6 +489,46 @@ static unsigned long evictionTimeLimitUs() {
     return ULONG_MAX;   /* No limit to eviction time */
 }
 
+#ifdef ROCKSDB
+void evictionDictEntryFromRedis(redisDb *db, sds bestkey) {
+    mstime_t eviction_latency;
+    int slaves = listLength(server.slaves);
+
+    robj *keyobj = createStringObject(bestkey,sdslen(bestkey));
+    propagateExpire(db,keyobj,server.lazyfree_lazy_eviction);
+    latencyStartMonitor(eviction_latency);
+    if (server.lazyfree_lazy_eviction)
+        dbAsyncDelete(db,keyobj);
+    else
+        dbSyncDelete(db,keyobj);
+    latencyEndMonitor(eviction_latency);
+    latencyAddSampleIfNeeded("eviction-del",eviction_latency);
+    server.stat_evictedkeys++;
+    signalModifiedKey(NULL,db,keyobj);
+    notifyKeyspaceEvent(NOTIFY_EVICTED, "evicted",
+        keyobj, db->id);
+    decrRefCount(keyobj);
+
+    /* When the memory to free starts to be big enough, we may
+    * start spending so much time here that is impossible to
+    * deliver data to the replicas fast enough, so we force the
+    * transmission here inside the loop. */
+    if (slaves) flushSlavesOutputBuffers();
+
+    /* Normally our stop condition is the ability to release
+    * a fixed, pre-computed amount of memory. However when we
+    * are deleting objects in another thread, it's better to
+    * check, from time to time, if we already reached our target
+    * memory, since the "mem_freed" amount is computed only
+    * across the dbAsyncDelete() call, while the thread can
+    * release the memory all the time. */
+    if (server.lazyfree_lazy_eviction) {
+        if (getMaxmemoryState(NULL,NULL,NULL,NULL) == C_OK) {
+            return;
+        }
+    }
+}
+
 /* Check that memory usage is within the current "maxmemory" limit.  If over
  * "maxmemory", attempt to free memory by evicting data (if it's safe to do so).
  *
@@ -512,6 +553,158 @@ static unsigned long evictionTimeLimitUs() {
  *   EVICT_RUNNING  - memory is over the limit, but eviction is still processing
  *   EVICT_FAIL     - memory is over the limit, and there's nothing to evict
  * */
+static unsigned long long getUsedMemory() {
+    unsigned long long mem_used;
+    int slaves = listLength(server.slaves);
+    mem_used = (unsigned long long)zmalloc_used_memory();
+
+    if (slaves) {
+        listIter li;
+        listNode *ln;
+
+        listRewind(server.slaves,&li);
+        while((ln = listNext(&li))) {
+            client *slave = listNodeValue(ln);
+            unsigned long long obuf_bytes = getClientOutputBufferMemoryUsage(slave);
+            if(obuf_bytes > 104857600) //100MB
+                serverLog(LL_VERBOSE, "clientOutputBuffer exceeds to %llu", obuf_bytes);
+            if (obuf_bytes > mem_used)
+                mem_used = 0;
+            else
+                mem_used -= obuf_bytes;
+        }
+    }
+    if (server.aof_state != AOF_OFF) {
+        mem_used -= (unsigned long long)sdslen(server.aof_buf);
+    }
+    return mem_used;
+}
+
+int performEvictionsToRocksdb(void) {
+    if (!isSafeToPerformEvictions()) return EVICT_OK;
+
+    unsigned long long mem_used;
+    mstime_t latency;
+    int result = EVICT_FAIL;
+    int needToWaitFlush = EVICT_OK;
+
+    if (server.maxmemory_policy != MAXMEMORY_ALLKEYS_LRU)
+        return EVICT_FAIL;  /* We need to free memory, but policy forbids. */
+
+    latencyStartMonitor(latency);
+
+    mem_used = getUsedMemory();
+    if(mem_used >server.maxmemory * (unsigned long long)(server.flush_trigger_ratio_of_maxmemory / 100)) {
+        int i, k;
+        sds bestkey = NULL;
+        robj* valueObj;
+        redisDb *db;
+        dict *dict;
+        dictEntry *de;
+
+        struct evictionPoolEntry *pool = EvictionPoolLRU;
+        while(bestkey == NULL) {
+            unsigned long total_keys = 0, keys;
+
+            /* We don't want to make local-db choices when expiring keys,
+                * so to start populate the eviction pool sampling keys from
+                * every DB. */
+            for (i = 0; i < server.dbnum; i++) {
+                db = server.db+i;
+                dict = (server.maxmemory_policy & MAXMEMORY_FLAG_ALLKEYS) ?
+                        db->dict : db->expires;
+                if ((keys = dictSize(dict)) != 0) {
+                    evictionPoolPopulate(i, dict, db->dict, pool);
+                    total_keys += keys;
+                }
+            }
+            if (!total_keys) break; /* No keys to evict. */
+
+            /* Go backward from best to worst element to evict. */
+            for (k = EVPOOL_SIZE-1; k >= 0; k--) {
+                if (pool[k].key == NULL) continue;
+
+                if (server.maxmemory_policy & MAXMEMORY_FLAG_ALLKEYS) {
+                    de = dictFind(server.db[pool[k].dbid].dict,
+                        pool[k].key);
+                } else {
+                    de = dictFind(server.db[pool[k].dbid].expires,
+                        pool[k].key);
+                }
+
+                /* Remove the entry from the pool. */
+                if (pool[k].key != pool[k].cached)
+                    sdsfree(pool[k].key);
+                pool[k].key = NULL;
+                pool[k].idle = 0;
+
+                /* If the key exists, is our pick. Otherwise it is
+                    * a ghost and we need to try the next element. */
+                if (de) {
+                    valueObj = dictGetVal(de);
+                    if (valueObj->where == LOC_REDIS){
+                        bestkey = dictGetKey(de);
+                        flushDictToFlash(db, de);
+                        queueEnqueue(db, de);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    mem_used = getUsedMemory();
+
+    /* Check if we are over the memory limit. */
+    if (mem_used < server.maxmemory) return EVICT_OK;
+
+    /* Used memory exceeds threshold. */
+    if (mem_used >= server.maxmemory) {
+        int i = 0;
+        dictEntry *target = NULL;
+        redisDb *db;
+force_evict:
+        while (mem_used >= server.maxmemory * 90 / 100) {
+            for (i = 0; i < server.dbnum; i++) {
+                db = server.db+i;
+                sds bestkey = NULL;
+                /* Finally remove the selected key. */
+                target = queueDequeue(db);
+                if (target == NULL) {
+                    serverPanic("Flush queue return the NULL. Check flush policy");
+                }
+                bestkey = dictGetKey(target);
+                if (bestkey) {
+                    evictionDictEntryFromRedis(db, bestkey);
+                }
+                else {
+                    needToWaitFlush = EVICT_RUNNING;
+                    goto wait_flush; /* nothing to free... */
+                }
+            }
+        }
+    }
+    
+    /* at this point, the memory is OK, or we have reached the time limit */
+    result = (isEvictionProcRunning) ? EVICT_RUNNING : EVICT_OK;
+
+wait_flush:
+    if (needToWaitFlush == EVICT_RUNNING) {
+        int numPendingJobs = 0;
+        
+        while ((numPendingJobs = bioPendingJobsOfType(BIO_FLUSH_TO_ROCKSDB)) != 0) {
+            usleep(100);
+        }
+        needToWaitFlush = EVICT_OK;
+        goto force_evict;
+    }
+
+    latencyEndMonitor(latency);
+    latencyAddSampleIfNeeded("eviction-cycle",latency);
+    return result;
+}
+#endif
+
 int performEvictions(void) {
     if (!isSafeToPerformEvictions()) return EVICT_OK;
 
@@ -592,9 +785,6 @@ int performEvictions(void) {
                      * a ghost and we need to try the next element. */
                     if (de) {
                         bestkey = dictGetKey(de);
-#ifdef ROCKSDB
-                        flushDictToFlash(db, de);
-#endif
                         break;
                     } else {
                         /* Ghost... Iterate again. */

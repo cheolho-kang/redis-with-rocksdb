@@ -82,5 +82,6 @@ TEST_F(RocksdbUtilTestFixture, createValuesObjectIfExecutedSuccesfully) {
     }
     zfree(actualEncoded);
     zfree(actualDecoded);
-    dictRelease(dict);
+
+    // TODO (cheoho.kang): Release dict
 }

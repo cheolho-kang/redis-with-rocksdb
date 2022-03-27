@@ -5,9 +5,14 @@
 extern "C" {
 #endif
 
+// server.h
+struct redisDb;
+
 static const unsigned char VALID_MARK = 0xAD;
 static const unsigned char STRING_DELIMITER = 0xCE;
+
 struct dict;
+struct dictEntry;
 
 typedef struct objectList {
     int length;
@@ -24,6 +29,12 @@ typedef struct decodedObjectList {
 
 objectList *createObjectList(void *object);
 decodedObjectList *decodeRocksdbValues(const char *values, unsigned long long maxOffset);
+
+void *queueCreate(void);
+void queueDestroy(redisDb *db);
+void queueEnqueue(redisDb *db, dictEntry* entry);
+dictEntry *queueDequeue(redisDb *db);
+int queueSize(redisDb *db);
 
 #ifdef __cplusplus
 }

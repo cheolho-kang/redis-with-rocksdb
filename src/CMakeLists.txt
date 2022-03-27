@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.8)
 set(server_src
     t_rocksdb.c
     rocksdb_util_c++.cc
+    queue_util.cc
     adlist.c
     quicklist.c
     ae.c

@@ -52,15 +52,15 @@ TEST(TFlushTest, flushDictToFlashWithBioCreateForFlushIfExecutedSuccesfully) {
     extern MockBio *mockBio;
     mockBio = new NiceMock<MockBio>;
 
-    char const *expectArg2 = "Hello";
-    char const *expectArg3 = "World";
+    char const *expectArg1 = "Hello";
+    char const *expectArg2 = "World";
 
     struct dictEntry de;
     struct redisObject robj;
     robj.where = LOC_REDIS;
-    robj.ptr = (void *)expectArg3;
+    robj.ptr = (void *)expectArg2;
 
-    de.key = (void *)expectArg2;
+    de.key = (void *)expectArg1;
     de.val = (void *)&robj;
 
     ON_CALL(*mockBio, BioCreateForFlush).WillByDefault([&](int type, int argCount, void *arg1, void *arg2, void *arg3) {

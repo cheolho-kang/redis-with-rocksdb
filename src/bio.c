@@ -63,6 +63,7 @@
 #ifdef ROCKSDB
 #include "rocksdb/c.h"
 #include "rocksdb_util_c++.h"
+#include "latency.h"
 #endif
 
 static pthread_t bio_threads[BIO_NUM_OPS];
@@ -277,15 +278,18 @@ void *bioProcessBackgroundJobs(void *arg) {
         } else if (type == BIO_LAZY_FREE) {
             job->free_fn(job->free_args);
         } else if (type == BIO_FLUSH_TO_ROCKSDB) {
+            long long latency, eviction_latency;
             redisDb *db = (redisDb *)job->free_args[0];
             sds flush_key = (sds)job->free_args[1];
             robj *hash_data_obj = (robj *)job->free_args[2];
             char *err = NULL;
+            
+            latencyStartMonitor(latency);
             objectList *objectList = createObjectList((void *)hash_data_obj);
-
             rocksdb_writeoptions_t *writeoptions = rocksdb_writeoptions_create();
             // TODO (cheolho.kang): Remove this after debugging
             rocksdb_writeoptions_disable_WAL(writeoptions, 1);
+            latencyStartMonitor(eviction_latency);
 #ifdef UNIT_TEST
             spyRocksdb_put((db->rocksdb), writeoptions, flush_key, strlen(flush_key), objectList->ptr,
                            objectList->allocated_length, &err);
@@ -293,6 +297,8 @@ void *bioProcessBackgroundJobs(void *arg) {
             rocksdb_put(db->rocksdb, writeoptions, flush_key, strlen(flush_key), objectList->ptr,
                         objectList->allocated_length, &err);
 #endif
+            latencyEndMonitor(eviction_latency);
+            latencyAddSampleIfNeeded("flush-rocksdb",eviction_latency);
             if (err) {
                 // TODO (cheolho.kang): Remove this after debugging
                 // serverLog(LL_WARNING, "[RocksDB] rocksdb write errors");
@@ -300,6 +306,9 @@ void *bioProcessBackgroundJobs(void *arg) {
                 free(err);
             }
             hash_data_obj->where = LOC_ROCKSDB;
+            latencyEndMonitor(latency);
+            latencyAddSampleIfNeeded("flush-rocksdb-cycle",latency);
+
             rocksdb_writeoptions_destroy(writeoptions);
             zfree(hash_data_obj);
             zfree(objectList);

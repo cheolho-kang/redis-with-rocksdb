@@ -63,6 +63,10 @@
 #include <sys/mman.h>
 #endif
 
+#ifdef ROCKSDB
+#include "rocksdb_util_c++.h"
+#endif
+
 /* Our shared "common" objects */
 
 struct sharedObjectsStruct shared;
@@ -3178,9 +3182,6 @@ rocksdb_t *initRocksDB(rocksdb_options_t *options, char *db_path, int dbnum) {
     rocksdb_t *db;
     char *DBName = NULL;
     char *err = NULL;
-    size_t cfs_num = 0;
-    char **column_families = NULL;
-    unsigned int i = 0;
     DBName = zmalloc(strlen(db_path) + 3);
 
     sprintf(DBName, "%s_%d", db_path, dbnum);
@@ -3337,6 +3338,8 @@ void initServer(void) {
 #ifdef ROCKSDB
         server.db[j].rocksdb_options = initRocksdbOptions();
         server.db[j].rocksdb = initRocksDB(server.db[j].rocksdb_options, server.rocksdb_path, j);
+    // TODO (cheolho.kang): Should free during server shutdown
+        server.db[j].queueForFlush = queueCreate();
 #endif
         server.db[j].dict = dictCreate(&dbDictType,NULL);
         server.db[j].expires = dictCreate(&dbExpiresDictType,NULL);

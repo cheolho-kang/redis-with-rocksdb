@@ -5,13 +5,13 @@
 #include <vector>
 
 #include "dict.h"
+#include "queue_util.h"
 #include "rocksdb_tier.h"
 #include "server.h"
 #include "zmalloc.h"
 
 extern "C" {
 
-// function
 objectList *createObjectList(void *object) {
     int length;
     robj *o = (robj *)object;
@@ -98,6 +98,48 @@ decodedObjectList *decodeRocksdbValues(const char *target, uint64_t maxOffset) {
         result->values[index] = sdsnew(values[index * 2 + 1].c_str());
         result->allocated_length += values[index * 2 + 1].length() + 1;
     }
+    return result;
+}
+
+void *queueCreate(void) {
+    FlushQueue *queuePtr;
+    queuePtr = new FlushQueue;
+    return (void *)queuePtr;
+}
+
+void queueDestroy(redisDb *db) {
+    FlushQueue *queuePtr = (FlushQueue *)db->queueForFlush;
+    if (queuePtr->IsSize() != 0) {
+        serverLog(LL_NOTICE, "Delete flsuhed object, object num: %d", queuePtr->IsSize());
+        sds bestkey = NULL;
+        for (int i = 0; i < queuePtr->IsSize(); i++) {
+            dictEntry *de = (dictEntry *)queuePtr->Dequeue();
+            bestkey = (sds)dictGetKey(de);
+
+            flushDictToFlash(db, de);
+            evictionDictEntryFromRedis(db, bestkey);
+        }
+    }
+    delete queuePtr;
+}
+
+void queueEnqueue(redisDb *db, dictEntry *entry) {
+    FlushQueue *queuePtr = (FlushQueue *)db->queueForFlush;
+    queuePtr->Enqueue(entry);
+}
+
+dictEntry *queueDequeue(redisDb *db) {
+    FlushQueue *queuePtr = (FlushQueue *)db->queueForFlush;
+    dictEntry *result = nullptr;
+
+    result = queuePtr->Dequeue();
+    return result;
+}
+int queueSize(redisDb *db) {
+    FlushQueue *queuePtr = (FlushQueue *)db->queueForFlush;
+    int result = 0;
+    result = queuePtr->IsSize();
+
     return result;
 }
 }

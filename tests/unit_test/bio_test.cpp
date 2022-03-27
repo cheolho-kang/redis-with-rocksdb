@@ -75,10 +75,10 @@ TEST_F(BioTestFixture, bioProcessBackgroundJobsIfExecutedToFlush) {
     extern MockBio *mockBio;
     mockBio = new NiceMock<MockBio>;
 
-    robj *val_obj = createHashObject();
-    hashTypeConvert(val_obj, OBJ_ENCODING_HT);
-    dict *dict = dictCreate(&hashDictType, NULL);
-    val_obj->ptr = dict;
+    robj *valueObject = createHashObject();
+    hashTypeConvert(valueObject, OBJ_ENCODING_HT);
+    dict *valueDict = dictCreate(&hashDictType, NULL);
+    valueObject->ptr = (void *)valueDict;
 
     sds expectKey = sdsnew("MyKey");
     sds expectField1 = sdsnew("field1");
@@ -86,8 +86,8 @@ TEST_F(BioTestFixture, bioProcessBackgroundJobsIfExecutedToFlush) {
     sds expectField2 = sdsnew("field2");
     sds expectValue2 = sdsnew("World");
 
-    dictAdd(dict, (void *)expectField1, (void *)expectValue1);
-    dictAdd(dict, (void *)expectField2, (void *)expectValue2);
+    dictAdd(valueDict, (void *)expectField1, (void *)expectValue1);
+    dictAdd(valueDict, (void *)expectField2, (void *)expectValue2);
 
     // When
     ON_CALL(*mockBio, BioSubmitJob).WillByDefault([&](int type, struct bio_job *job) { bioSubmitJob(type, job); });
@@ -97,15 +97,15 @@ TEST_F(BioTestFixture, bioProcessBackgroundJobsIfExecutedToFlush) {
             EXPECT_EQ(expectKey, key);
             EXPECT_EQ(strlen(expectKey), keylen);
 
-            objectList *expectEncoded = createObjectList((void *)val_obj);
+            objectList *expectEncoded = createObjectList((void *)valueObject);
             EXPECT_TRUE(strcmp(expectEncoded->ptr, val) == 0);
             EXPECT_EQ(expectEncoded->allocated_length, vallen);
         });
-    bioCreateForFlush(BIO_FLUSH_TO_ROCKSDB, 3, (void *)&redisDb, (void *)expectKey, (void *)val_obj);
+    bioCreateForFlush(BIO_FLUSH_TO_ROCKSDB, 3, (void *)&redisDb, (void *)expectKey, (void *)valueObject);
 
     // Then
     bioWaitStepOfType(BIO_FLUSH_TO_ROCKSDB);
 
-    dictRelease(dict);
+    dictRelease(valueDict);
     delete mockBio;
 }
