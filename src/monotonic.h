@@ -15,6 +15,10 @@
 #include <stdint.h>
 #include <unistd.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* A counter in micro-seconds.  The 'monotime' type is provided for variables
  * holding a monotonic time.  This will help distinguish & document that the
  * variable is associated with the monotonic clock and should not be confused
@@ -48,5 +52,10 @@ static inline uint64_t elapsedUs(monotime start_time) {
 static inline uint64_t elapsedMs(monotime start_time) {
     return elapsedUs(start_time) / 1000;
 }
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif

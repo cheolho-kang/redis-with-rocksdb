@@ -31,6 +31,10 @@
 #include <inttypes.h>
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef uint64_t (*crcfn64)(uint64_t, const void *, const uint64_t);
 typedef uint16_t (*crcfn16)(uint16_t, const void *, const uint64_t);
 
@@ -57,4 +61,8 @@ uint16_t crcspeed16big(uint16_t table[8][256], uint16_t crc, void *buf,
                        size_t len);
 uint16_t crcspeed16native(uint16_t table[8][256], uint16_t crc, void *buf,
                           size_t len);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #endif

@@ -33,6 +33,10 @@
 
 #include "connection.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* These are helper functions that are common to different connection
  * implementations (currently sockets in connection.c and TLS in tls.c).
  *
@@ -85,4 +89,7 @@ static inline int callHandler(connection *conn, ConnectionCallbackFunc handler) 
     return 1;
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif  /* __REDIS_CONNHELPERS_H */

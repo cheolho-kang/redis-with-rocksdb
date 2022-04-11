@@ -37,10 +37,22 @@
 #ifndef LZFP_h
 #define LZFP_h
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define STANDALONE 1 /* at the moment, this is ok. */
+
+#ifdef __cplusplus
+}
+#endif
 
 #ifndef STANDALONE
 # include "lzf.h"
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 /*
@@ -136,6 +148,10 @@
 /* nothing should be changed below */
 
 #ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
 # include <cstring>
 # include <climits>
 using namespace std;
@@ -146,15 +162,39 @@ using namespace std;
 
 #ifndef LZF_USE_OFFSETS
 # if defined (WIN32)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #  define LZF_USE_OFFSETS defined(_M_X64)
+
+#ifdef __cplusplus
+}
+#endif
+
 # else
 #  if __cplusplus > 199711L
 #   include <cstdint>
 #  else
 #   include <stdint.h>
 #  endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #  define LZF_USE_OFFSETS (UINTPTR_MAX > 0xffffffffU)
+
+#ifdef __cplusplus
+}
+#endif
+
 # endif
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 typedef unsigned char u8;
@@ -183,6 +223,10 @@ typedef LZF_HSLOT LZF_STATE[1 << (HLOG)];
 
 #if ULTRA_FAST
 # undef VERY_FAST
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

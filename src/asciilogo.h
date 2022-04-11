@@ -27,6 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 const char *ascii_logo =
 "                _._                                                  \n"
 "           _.-``__ ''-._                                             \n"
@@ -45,3 +49,7 @@ const char *ascii_logo =
 "      `-._    `-.__.-'    _.-'                                       \n"
 "          `-._        _.-'                                           \n"
 "              `-.__.-'                                               \n\n";
+
+#ifdef __cplusplus
+}
+#endif

@@ -6,14 +6,11 @@
 #include <iostream>
 #include <string.h>
 
-#include "fake/sds_spy.h"
 #include "fake/server_spy.h"
-#include "fake/t_hash_spy.h"
-
-extern "C" {
 #include "src/dict.h"
+#include "src/sds.h"
+#include "src/server.h"
 #include "src/zmalloc.h"
-}
 
 using ::testing::NiceMock;
 

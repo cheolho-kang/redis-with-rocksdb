@@ -39,6 +39,10 @@
 #ifndef __TESTHELP_H
 #define __TESTHELP_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int __failed_tests = 0;
 int __test_num = 0;
 #define test_cond(descr,_c) do { \
@@ -53,5 +57,9 @@ int __test_num = 0;
         exit(1); \
     } \
 } while(0)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

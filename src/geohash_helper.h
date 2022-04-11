@@ -34,6 +34,10 @@
 
 #include "geohash.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define GZERO(s) s.bits = s.step = 0;
 #define GISZERO(s) (!s.bits && !s.step)
 #define GISNOTZERO(s) (s.bits || s.step)
@@ -62,5 +66,9 @@ int geohashGetDistanceIfInRadiusWGS84(double x1, double y1, double x2,
                                       double *distance);
 int geohashGetDistanceIfInRectangle(double width_m, double height_m, double x1, double y1,
                                     double x2, double y2, double *distance);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* GEOHASH_HELPER_HPP_ */

@@ -31,6 +31,11 @@
  */
 
 #include <stdio.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define D(...)                                                               \
     do {                                                                     \
         FILE *fp = fopen("/tmp/log.txt","a");                                \
@@ -39,3 +44,7 @@
         fprintf(fp,"\n");                                                    \
         fclose(fp);                                                          \
     } while (0)
+
+#ifdef __cplusplus
+}
+#endif

@@ -38,6 +38,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define LP_INTBUF_SIZE 21 /* 20 digits of -2^63 + 1 null term = 21. */
 
 /* lpInsert() where argument possible values: */
@@ -62,5 +66,9 @@ unsigned char *lpSeek(unsigned char *lp, long index);
 int lpValidateIntegrity(unsigned char *lp, size_t size, int deep);
 unsigned char *lpValidateFirst(unsigned char *lp);
 int lpValidateNext(unsigned char *lp, unsigned char **pp, size_t lpbytes);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

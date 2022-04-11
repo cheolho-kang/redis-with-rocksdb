@@ -33,6 +33,10 @@
 
 #include <sys/types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define ANET_OK 0
 #define ANET_ERR -1
 #define ANET_ERR_LEN 256
@@ -73,4 +77,7 @@ int anetKeepAlive(char *err, int fd, int interval);
 int anetFormatAddr(char *fmt, size_t fmt_len, char *ip, int port);
 int anetFormatFdAddr(int fd, char *buf, size_t buf_len, int fd_to_str_type);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

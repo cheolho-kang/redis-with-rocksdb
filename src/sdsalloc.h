@@ -40,6 +40,11 @@
 #define __SDS_ALLOC_H__
 
 #include "zmalloc.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define s_malloc zmalloc
 #define s_realloc zrealloc
 #define s_trymalloc ztrymalloc
@@ -50,5 +55,9 @@
 #define s_trymalloc_usable ztrymalloc_usable
 #define s_tryrealloc_usable ztryrealloc_usable
 #define s_free_usable zfree_usable
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -4,6 +4,7 @@
 
 #include "fake/rocksdb_spy.h"
 #include "fake/server_spy.h"
+#include "src/server.h"
 #include "rocksdb/advanced_options.h"
 #include "rocksdb/env.h"
 
@@ -18,9 +19,6 @@ class ServerTestFixture : public ::testing::Test {
 };
 
 TEST_F(ServerTestFixture, initServerIfExecutedSuccesfully) {
-    // Given
-    extern struct redisServer server;
-
     // When
     initServerConfig();
 

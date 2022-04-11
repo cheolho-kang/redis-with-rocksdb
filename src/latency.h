@@ -34,6 +34,10 @@
 #ifndef __LATENCY_H
 #define __LATENCY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define LATENCY_TS_LEN 160 /* History length for every monitored event. */
 
 /* Representation of a latency sample: the sampling time and the latency
@@ -90,5 +94,9 @@ int THPDisable(void);
 /* Remove time from a nested event. */
 #define latencyRemoveNestedEvent(event_var,nested_var) \
     event_var += nested_var;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __LATENCY_H */

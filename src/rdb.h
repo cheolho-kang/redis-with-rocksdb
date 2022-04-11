@@ -36,6 +36,10 @@
 /* TBD: include only necessary headers. */
 #include "server.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* The current RDB version. When the format changes in a way that is no longer
  * backward compatible this number gets incremented. */
 #define RDB_VERSION 9
@@ -166,5 +170,9 @@ int rdbLoadBinaryFloatValue(rio *rdb, float *val);
 int rdbLoadRio(rio *rdb, int rdbflags, rdbSaveInfo *rsi);
 int rdbSaveRio(rio *rdb, int *error, int rdbflags, rdbSaveInfo *rsi);
 rdbSaveInfo *rdbPopulateSaveInfo(rdbSaveInfo *rsi);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

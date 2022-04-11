@@ -37,6 +37,10 @@
 #include "sds.h"
 #include "connection.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define RIO_FLAG_READ_ERROR (1<<0)
 #define RIO_FLAG_WRITE_ERROR (1<<1)
 
@@ -174,5 +178,9 @@ int rioWriteBulkObject(rio *r, struct redisObject *obj);
 
 void rioGenericUpdateChecksum(rio *r, const void *buf, size_t len);
 void rioSetAutoSync(rio *r, off_t bytes);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -18,6 +18,7 @@ target_link_libraries(${PROJECT_UT_BINARY}
 )
 target_compile_options(${PROJECT_UT_BINARY} PRIVATE -g -O0)
 target_compile_features(${PROJECT_UT_BINARY} PRIVATE cxx_std_11)
+target_compile_definitions(${PROJECT_UT_BINARY} PRIVATE -DROCKSDB)
 add_test(
     NAME ${PROJECT_UT_BINARY}
     COMMAND ${PROJECT_UT_BINARY}

@@ -33,6 +33,11 @@
 #if defined(__GNUC__)
 #include <math.h>
 #undef isnan
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define isnan(x) \
      __extension__({ __typeof (x) __x_a = (x); \
      __builtin_expect(__x_a != __x_a, 0); })
@@ -49,6 +54,11 @@
 
 #define u_int uint
 #define u_int32_t uint32_t
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* __GNUC__ */
 
 #endif /* __sun */

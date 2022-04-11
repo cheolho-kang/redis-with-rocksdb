@@ -3,6 +3,10 @@
 #ifndef __REDIS_HELP_H
 #define __REDIS_HELP_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static char *commandGroups[] = {
     "generic",
     "string",
@@ -1434,5 +1438,9 @@ struct commandHelp {
     4,
     "2.0.0" }
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

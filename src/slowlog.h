@@ -30,6 +30,10 @@
 #ifndef __SLOWLOG_H__
 #define __SLOWLOG_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SLOWLOG_ENTRY_MAX_ARGC 32
 #define SLOWLOG_ENTRY_MAX_STRING 128
 
@@ -50,5 +54,9 @@ void slowlogPushEntryIfNeeded(client *c, robj **argv, int argc, long long durati
 
 /* Exported commands */
 void slowlogCommand(client *c);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __SLOWLOG_H__ */

@@ -35,6 +35,10 @@
 #ifndef _ZIPMAP_H
 #define _ZIPMAP_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 unsigned char *zipmapNew(void);
 unsigned char *zipmapSet(unsigned char *zm, unsigned char *key, unsigned int klen, unsigned char *val, unsigned int vlen, int *update);
 unsigned char *zipmapDel(unsigned char *zm, unsigned char *key, unsigned int klen, int *deleted);
@@ -49,6 +53,10 @@ int zipmapValidateIntegrity(unsigned char *zm, size_t size, int deep);
 
 #ifdef REDIS_TEST
 int zipmapTest(int argc, char *argv[], int accurate);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

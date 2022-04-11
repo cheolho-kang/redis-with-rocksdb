@@ -31,6 +31,10 @@
 #ifndef __REDIS_CONNECTION_H
 #define __REDIS_CONNECTION_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define CONN_INFO_LEN   32
 
 struct aeEventLoop;
@@ -233,5 +237,9 @@ const char *connGetInfo(connection *conn, char *buf, size_t buf_len);
 sds connTLSGetPeerCert(connection *conn);
 int tlsHasPendingData();
 int tlsProcessPendingData();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* __REDIS_CONNECTION_H */

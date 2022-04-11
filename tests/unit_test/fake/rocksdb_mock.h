@@ -29,10 +29,7 @@ public:
         char** errptr), (override));
 };
 
-#ifdef __cplusplus
 extern "C" {
-#endif
-
 void spyRocksdb_put(
     rocksdb_t* db,
     const rocksdb_writeoptions_t* options,
@@ -40,6 +37,4 @@ void spyRocksdb_put(
     const char* val, size_t vallen,
     char** errptr);
 
-#ifdef __cplusplus
 }
-#endif

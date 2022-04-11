@@ -1,5 +1,10 @@
 #ifndef SHA1_H
 #define SHA1_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ================ sha1.h ================ */
 /*
 SHA-1 in C
@@ -21,4 +26,9 @@ void SHA1Final(unsigned char digest[20], SHA1_CTX* context);
 #ifdef REDIS_TEST
 int sha1Test(int argc, char **argv, int accurate);
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

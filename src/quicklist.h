@@ -33,6 +33,10 @@
 #ifndef __QUICKLIST_H__
 #define __QUICKLIST_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Node, quicklist, and Iterator are the only data structures used currently. */
 
 /* quicklistNode is a 32 byte struct describing a ziplist for a quicklist.
@@ -205,5 +209,9 @@ int quicklistTest(int argc, char *argv[], int accurate);
 /* Directions for iterators */
 #define AL_START_HEAD 0
 #define AL_START_TAIL 1
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __QUICKLIST_H__ */

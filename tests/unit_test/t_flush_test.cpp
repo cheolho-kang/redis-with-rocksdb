@@ -7,8 +7,8 @@
 #include "dict.h"
 #include "fake/bio_mock.h"
 #include "fake/bio_spy.h"
-#include "fake/server_spy.h"
-#include "fake/t_flush_spy.h"
+#include "src/bio.h"
+#include "src/server.h"
 
 TEST(TFlushTest, flushDictToFlashIfExecutedSuccesfully) {
     // Given

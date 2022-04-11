@@ -55,6 +55,10 @@
 #ifndef __ATOMIC_VAR_H
 #define __ATOMIC_VAR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Define redisAtomic for atomic variable. */
 #define redisAtomic
 
@@ -154,5 +158,9 @@
 #else
 #error "Unable to determine atomic operations for your platform"
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 #endif /* __ATOMIC_VAR_H */

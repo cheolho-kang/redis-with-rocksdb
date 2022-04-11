@@ -7,18 +7,12 @@
 #include "fake/bio_mock.h"
 #include "fake/bio_spy.h"
 #include "fake/rocksdb_mock.h"
-#include "fake/server_spy.h"
-#include "fake/t_hash_spy.h"
-#include "src/rocksdb_util_c++.h"
-
-extern "C" {
+#include "src/bio.h"
 #include "src/dict.h"
-}
+#include "src/rocksdb_util_c++.h"
+#include "src/server.h"
 
 using ::testing::NiceMock;
-
-#define BIO_FLUSH_TO_ROCKSDB 3
-#define OBJ_ENCODING_HT 2 /* Encoded as hash table */
 
 extern MockRocksdb *mockRocksdb;
 class BioTestFixture : public ::testing::Test {

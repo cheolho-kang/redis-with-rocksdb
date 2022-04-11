@@ -38,7 +38,17 @@
 #ifndef RAX_ALLOC_H
 #define RAX_ALLOC_H
 #include "zmalloc.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define rax_malloc zmalloc
 #define rax_realloc zrealloc
 #define rax_free zfree
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

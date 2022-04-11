@@ -3,6 +3,10 @@
 
 #include "server.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Structures used inside geo.c in order to represent points and array of
  * points on the earth. */
 typedef struct geoPoint {
@@ -18,5 +22,9 @@ typedef struct geoArray {
     size_t buckets;
     size_t used;
 } geoArray;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

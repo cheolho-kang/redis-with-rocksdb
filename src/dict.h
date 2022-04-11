@@ -41,6 +41,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define DICT_OK 0
 #define DICT_ERR 1
 
@@ -203,6 +207,10 @@ extern dictType dictTypeHeapStringCopyKeyValue;
 
 #ifdef REDIS_TEST
 int dictTest(int argc, char *argv[], int accurate);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* __DICT_H */

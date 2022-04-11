@@ -39,6 +39,10 @@
 #include <fcntl.h>
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Define redis_fstat to fstat or fstat64() */
 #if defined(__APPLE__) && !defined(MAC_OS_X_VERSION_10_6)
 #define redis_fstat fstat64
@@ -83,12 +87,20 @@
 #define HAVE_KQUEUE 1
 #endif
 
+#ifdef __cplusplus
+}
+#endif
+
 #ifdef __sun
 #include <sys/feature_tests.h>
 #ifdef _DTRACE_VERSION
 #define HAVE_EVPORT 1
 #define HAVE_PSINFO 1
 #endif
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 /* Define redis_fsync to fdatasync() in Linux and fsync() for all the rest */
@@ -138,6 +150,10 @@ void spt_init(int argc, char *argv[]);
 void setproctitle(const char *fmt, ...);
 #endif
 
+#ifdef __cplusplus
+}
+#endif
+
 /* Byte ordering detection */
 #include <sys/types.h> /* This will likely define BYTE_ORDER */
 
@@ -148,6 +164,11 @@ void setproctitle(const char *fmt, ...);
 #if defined(linux) || defined(__linux__)
 # include <endian.h>
 #else
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define	LITTLE_ENDIAN	1234	/* least-significant byte first (vax, pc) */
 #define	BIG_ENDIAN	4321	/* most-significant byte first (IBM, net) */
 #define	PDP_ENDIAN	3412	/* LSB first in word, MSW first in long (pdp)*/
@@ -167,10 +188,19 @@ void setproctitle(const char *fmt, ...);
     defined(__hp9000s300) || defined(__hp9000s700) || \
     defined (BIT_ZERO_ON_LEFT) || defined(m68k) || defined(__sparc)
 #define BYTE_ORDER	BIG_ENDIAN
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
 #endif /* linux */
 #endif /* BSD */
 #endif /* BYTE_ORDER */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Sometimes after including an OS-specific header that defines the
  * endianness we end with __BYTE_ORDER but not with BYTE_ORDER that is what
@@ -234,34 +264,85 @@ void setproctitle(const char *fmt, ...);
 #define USE_ALIGNED_ACCESS
 #endif
 
+#ifdef __cplusplus
+}
+#endif
+
 /* Define for redis_set_thread_title */
 #ifdef __linux__
+#ifdef __cplusplus
+extern "C" {
+#endif
 #define redis_set_thread_title(name) pthread_setname_np(pthread_self(), name)
+#ifdef __cplusplus
+}
+#endif
 #else
 #if (defined __FreeBSD__ || defined __OpenBSD__)
 #include <pthread_np.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 #define redis_set_thread_title(name) pthread_set_name_np(pthread_self(), name)
+#ifdef __cplusplus
+}
+#endif
 #elif defined __NetBSD__
 #include <pthread.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 #define redis_set_thread_title(name) pthread_setname_np(pthread_self(), "%s", name)
+#ifdef __cplusplus
+}
+#endif
 #elif defined __HAIKU__
 #include <kernel/OS.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 #define redis_set_thread_title(name) rename_thread(find_thread(0), name)
+#ifdef __cplusplus
+}
+#endif
 #else
 #if (defined __APPLE__ && defined(MAC_OS_X_VERSION_10_7))
+#ifdef __cplusplus
+extern "C" {
+#endif
 int pthread_setname_np(const char *name);
+#ifdef __cplusplus
+}
+#endif
 #include <pthread.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 #define redis_set_thread_title(name) pthread_setname_np(name)
+#ifdef __cplusplus
+}
+#endif
 #else
+#ifdef __cplusplus
+extern "C" {
+#endif
 #define redis_set_thread_title(name)
+#ifdef __cplusplus
+}
+#endif
 #endif
 #endif
 #endif
 
 /* Check if we can use setcpuaffinity(). */
+#ifdef __cplusplus
+extern "C" {
+#endif
 #if (defined __linux || defined __NetBSD__ || defined __FreeBSD__ || defined __DragonFly__)
 #define USE_SETCPUAFFINITY
 void setcpuaffinity(const char *cpulist);
 #endif
-
+#ifdef __cplusplus
+}
+#endif
 #endif

@@ -56,6 +56,10 @@
 #ifndef __MT19937_64_H
 #define __MT19937_64_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* initializes mt[NN] with a seed */
 void init_genrand64(unsigned long long seed);
 
@@ -83,5 +87,9 @@ double genrand64_real3(void);
 
 /* generates a random number on (0,1]-real-interval */
 double genrand64_real4(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

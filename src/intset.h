@@ -32,6 +32,10 @@
 #define __INTSET_H
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct intset {
     uint32_t encoding;
     uint32_t length;
@@ -50,6 +54,10 @@ int intsetValidateIntegrity(const unsigned char *is, size_t size, int deep);
 
 #ifdef REDIS_TEST
 int intsetTest(int argc, char *argv[], int accurate);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif // __INTSET_H

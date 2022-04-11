@@ -1171,10 +1171,10 @@ void sds_free(void *ptr) { s_free(ptr); }
  * Template variables are specified using curly brackets, e.g. {variable}.
  * An opening bracket can be quoted by repeating it twice.
  */
-sds sdstemplate(const char *template, sdstemplate_callback_t cb_func, void *cb_arg)
+sds sdstemplate(const char *_template, sdstemplate_callback_t cb_func, void *cb_arg)
 {
     sds res = sdsempty();
-    const char *p = template;
+    const char *p = _template;
 
     while (*p) {
         /* Find next variable, copy everything until there */

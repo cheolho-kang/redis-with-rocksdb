@@ -1,9 +1,5 @@
 #include "rocksdb_mock.h"
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
 MockRocksdb *mockRocksdb;
 
 void spyRocksdb_put(
@@ -14,7 +10,3 @@ void spyRocksdb_put(
     char** errptr) {
         return mockRocksdb->rocksdb_put(db, options, key, keylen, val, vallen, errptr);
     }
-
-#ifdef __cplusplus
-}
-#endif

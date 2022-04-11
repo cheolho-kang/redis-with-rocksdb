@@ -4,56 +4,12 @@
 #include <string>
 #include <vector>
 
-extern "C" {
-
 #include "dict.h"
-#include "src/redisassert.h"
+#include "rocksdb_tier.h"
+#include "server.h"
 #include "zmalloc.h"
 
-// sds.h
-typedef char *sds;
-
-sds sdsnew(const char *init);
-
-// server.h
-#define C_OK 0
-#define C_ERR -1
-
-#define OBJ_HASH_KEY 1
-#define OBJ_HASH_VALUE 2
-
-#define LRU_BITS 24
-#define OBJ_ENCODING_HT 2 /* Encoded as hash table */
-
-#define serverPanic(...) _serverPanic(__FILE__, __LINE__, __VA_ARGS__), redis_unreachable()
-
-typedef struct redisObject {
-    volatile unsigned where : 2; /* Indicat the location of object */
-                                 /* 0: REDIS, 1: FLUSHING, 2: ROCKSDB */
-    unsigned type : 4;
-    unsigned encoding : 4;
-    unsigned lru : LRU_BITS; /* LRU time (relative to global lru_clock) or
-                              * LFU data (least significant 8 bits frequency
-                              * and most significant 16 bits access time). */
-    int refcount;
-    void *ptr;
-} robj;
-
-typedef struct {
-    robj *subject;
-    int encoding;
-
-    unsigned char *fptr, *vptr;
-
-    dictIterator *di;
-    dictEntry *de;
-} hashTypeIterator;
-
-hashTypeIterator *hashTypeInitIterator(robj *subject);
-int hashTypeNext(hashTypeIterator *hi);
-sds hashTypeCurrentFromHashTable(hashTypeIterator *hi, int what);
-
-// rocksdb_util_c++
+extern "C" {
 
 // function
 objectList *createObjectList(void *object) {

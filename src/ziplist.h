@@ -31,6 +31,10 @@
 #ifndef _ZIPLIST_H
 #define _ZIPLIST_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define ZIPLIST_HEAD 0
 #define ZIPLIST_TAIL 1
 
@@ -69,6 +73,10 @@ int ziplistSafeToAdd(unsigned char* zl, size_t add);
 
 #ifdef REDIS_TEST
 int ziplistTest(int argc, char *argv[], int accurate);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* _ZIPLIST_H */

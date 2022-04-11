@@ -1,6 +1,10 @@
 #ifndef __CLUSTER_H
 #define __CLUSTER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*-----------------------------------------------------------------------------
  * Redis cluster data structures, defines, exported API.
  *----------------------------------------------------------------------------*/
@@ -293,4 +297,7 @@ int clusterRedirectBlockedClientIfNeeded(client *c);
 void clusterRedirectClient(client *c, clusterNode *n, int hashslot, int error_code);
 unsigned long getClusterConnectionsCount(void);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __CLUSTER_H */

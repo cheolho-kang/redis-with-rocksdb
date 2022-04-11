@@ -31,6 +31,10 @@
 #ifndef __ADLIST_H__
 #define __ADLIST_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Node, List, and Iterator are the only data structures used currently. */
 
 typedef struct listNode {
@@ -93,4 +97,7 @@ void listJoin(list *l, list *o);
 #define AL_START_HEAD 0
 #define AL_START_TAIL 1
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __ADLIST_H__ */

@@ -35,6 +35,10 @@
 
 #include "monotonic.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define AE_OK 0
 #define AE_ERR -1
 
@@ -132,4 +136,7 @@ int aeGetSetSize(aeEventLoop *eventLoop);
 int aeResizeSetSize(aeEventLoop *eventLoop, int setsize);
 void aeSetDontWait(aeEventLoop *eventLoop, int noWait);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

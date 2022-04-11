@@ -40,6 +40,10 @@ extern const char *SDS_NOINIT;
 #include <stdarg.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef char *sds;
 
 /* Note: sdshdr5 is never used, we just access the flags byte directly.
@@ -80,7 +84,11 @@ struct __attribute__ ((__packed__)) sdshdr64 {
 #define SDS_TYPE_64 4
 #define SDS_TYPE_MASK 7
 #define SDS_TYPE_BITS 3
+#ifdef __cplusplus
+#define SDS_HDR_VAR(T,s) struct sdshdr##T *sh = (sdshdr##T*)((s)-(sizeof(struct sdshdr##T)));
+#else
 #define SDS_HDR_VAR(T,s) struct sdshdr##T *sh = (void*)((s)-(sizeof(struct sdshdr##T)));
+#endif
 #define SDS_HDR(T,s) ((struct sdshdr##T *)((s)-(sizeof(struct sdshdr##T))))
 #define SDS_TYPE_5_LEN(f) ((f)>>SDS_TYPE_BITS)
 
@@ -260,7 +268,7 @@ sds sdsjoinsds(sds *argv, int argc, const char *sep, size_t seplen);
  * substitution value. Returning a NULL indicates an error.
  */
 typedef sds (*sdstemplate_callback_t)(const sds variable, void *arg);
-sds sdstemplate(const char *template, sdstemplate_callback_t cb_func, void *cb_arg);
+sds sdstemplate(const char *_template, sdstemplate_callback_t cb_func, void *cb_arg);
 
 /* Low level functions exposed to the user API */
 sds sdsMakeRoomFor(sds s, size_t addlen);
@@ -279,6 +287,10 @@ void sds_free(void *ptr);
 
 #ifdef REDIS_TEST
 int sdsTest(int argc, char *argv[], int accurate);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

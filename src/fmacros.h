@@ -30,6 +30,10 @@
 #ifndef _REDIS_FMACRO_H
 #define _REDIS_FMACRO_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define _BSD_SOURCE
 
 #if defined(__linux__)
@@ -61,6 +65,10 @@
 #ifdef __linux__
 /* features.h uses the defines above to set feature specific defines.  */
 #include <features.h>
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

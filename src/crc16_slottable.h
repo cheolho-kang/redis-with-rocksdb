@@ -1,6 +1,10 @@
 #ifndef _CRC16_TABLE_H__
 #define _CRC16_TABLE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* A table of the shortest possible alphanumeric string that is mapped by redis' crc16
  * to any given redis cluster slot. 
  * 
@@ -830,6 +834,8 @@ const char *crc16_slot_table[] = {
 "5F4", "4Ct", "0xZ", "2My", "1L", "0Vv", "4mX", "4x9", "430", "4bY", "0Yw", "zE", "Ti", "03S", "4Lu", "5I5", "60n", "4AE", "L8", "YY", 
 "wu", "0TG", "4oi", "6ZJ" };
 
-
+#ifdef __cplusplus
+}
+#endif
 #endif
 

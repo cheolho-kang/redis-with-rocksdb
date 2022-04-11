@@ -88,6 +88,10 @@ typedef long long ustime_t; /* microsecond time type. */
 #include "endianconv.h"
 #include "crc64.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Error codes */
 #define C_OK                    0
 #define C_ERR                   -1
@@ -733,7 +737,11 @@ typedef struct redisDb {
     struct rocksdb_t *rocksdb;
     struct rocksdb_options_t *rocksdb_options; /* options of rocksdb */
 #endif
+#ifdef __cplusplus
+    dict *_dict;
+#else
     dict *dict;                 /* The keyspace for this DB */
+#endif
     dict *expires;              /* Timeout of keys with a timeout set */
     dict *blocking_keys;        /* Keys with clients waiting for data (BLPOP)*/
     dict *ready_keys;           /* Blocked keys that received a PUSH */
@@ -1831,7 +1839,11 @@ uint64_t crc64(uint64_t crc, const unsigned char *s, uint64_t l);
 void exitFromChild(int retcode);
 long long redisPopcount(void *s, long count);
 int redisSetProcTitle(char *title);
+#ifdef __cplusplus
+int validateProcTitleTemplate(const char *_template);
+#else
 int validateProcTitleTemplate(const char *template);
+#endif
 int redisCommunicateSystemd(const char *sd_notify_msg);
 void redisSetCpuAffinity(const char *cpulist);
 
@@ -1906,7 +1918,11 @@ int freeClientsInAsyncFreeQueue(void);
 int closeClientOnOutputBufferLimitReached(client *c, int async);
 int getClientType(client *c);
 int getClientTypeByName(char *name);
+#ifdef __cplusplus
+char *getClientTypeName(int _class);
+#else
 char *getClientTypeName(int class);
+#endif
 void flushSlavesOutputBuffers(void);
 void disconnectSlaves(void);
 int listenToPort(int port, socketFds *fds);
@@ -2103,8 +2119,17 @@ int allPersistenceDisabled(void);
 #define DISK_ERROR_TYPE_NONE 0      /* No problems, we can accept writes. */
 int writeCommandsDeniedByDiskError(void);
 
+#ifdef __cplusplus
+}
+#endif
+
 /* RDB persistence */
 #include "rdb.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void killRDBChild(void);
 int bg_unlink(const char *filename);
 
@@ -2505,6 +2530,10 @@ unsigned long LFUDecrAndReturn(robj *o);
 #define EVICT_FAIL 2
 int performEvictions(void);
 
+#ifdef ROCKSDB
+int performEvictionsToRocksdb(void);
+void evictionDictEntryFromRedis(redisDb *db, sds bestkey);
+#endif
 
 /* Keys hashing / comparison functions for dict.c hash tables. */
 uint64_t dictSdsHash(const void *key);
@@ -2736,6 +2765,9 @@ void aclCommand(client *c);
 void stralgoCommand(client *c);
 void resetCommand(client *c);
 void failoverCommand(client *c);
+#ifdef ROCKSDB
+int flushDictToFlash(redisDb *db, dictEntry *hashDataEntry);
+#endif
 
 #if defined(__GNUC__)
 void *calloc(size_t count, size_t size) __attribute__ ((deprecated));
@@ -2789,5 +2821,9 @@ int tlsConfigure(redisTLSContextConfig *ctx_config);
     printf("-- MARK %s:%d --\n", __FILE__, __LINE__)
 
 int iAmMaster(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

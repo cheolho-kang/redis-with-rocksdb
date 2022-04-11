@@ -33,8 +33,16 @@
 #ifndef __PQSORT_H
 #define __PQSORT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void
 pqsort(void *a, size_t n, size_t es,
     int (*cmp) (const void *, const void *), size_t lrange, size_t rrange);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -4,6 +4,10 @@
 #include "rax.h"
 #include "listpack.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Stream item ID: a 128 bit number composed of a milliseconds time and
  * a sequence counter. IDs generated in the same millisecond (or in a past
  * millisecond if the clock jumped backward) will use the millisecond time
@@ -14,7 +18,11 @@ typedef struct streamID {
 } streamID;
 
 typedef struct stream {
+#ifdef __cplusplus
+    rax *_rax;
+#else
     rax *rax;               /* The radix tree holding the stream. */
+#endif
     uint64_t length;        /* Number of elements inside this stream. */
     streamID last_id;       /* Zero if there are yet no items. */
     rax *cgroups;           /* Consumer groups dictionary: name -> streamCG */
@@ -128,5 +136,9 @@ int streamAppendItem(stream *s, robj **argv, int64_t numfields, streamID *added_
 int streamDeleteItem(stream *s, streamID *id);
 int64_t streamTrimByLength(stream *s, long long maxlen, int approx);
 int64_t streamTrimByID(stream *s, streamID minid, int approx);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

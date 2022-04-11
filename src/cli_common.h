@@ -3,6 +3,10 @@
 
 #include <hiredis.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct cliSSLconfig {
     /* Requested SNI, or NULL */
     char *sni;
@@ -47,4 +51,7 @@ ssize_t cliWriteConn(redisContext *c, const char *buf, size_t buf_len);
  */
 int cliSecureInit();
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __CLICOMMON_H */

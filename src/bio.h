@@ -30,6 +30,10 @@
 #ifndef __BIO_H
 #define __BIO_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef void lazy_free_fn(void *args[]);
 
 /* Exported API */
@@ -52,4 +56,7 @@ void bioCreateLazyFreeJob(lazy_free_fn free_fn, int arg_count, ...);
 #define BIO_FLUSH_TO_ROCKSDB 3 /* Deferred flush object to RocksDB */
 #define BIO_NUM_OPS       4
 
+#ifdef __cplusplus
+}
+#endif
 #endif

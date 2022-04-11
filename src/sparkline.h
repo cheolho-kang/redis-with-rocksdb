@@ -30,6 +30,10 @@
 #ifndef __SPARKLINE_H
 #define __SPARKLINE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* A sequence is represented of many "samples" */
 struct sample {
     double value;
@@ -52,5 +56,9 @@ void sparklineSequenceAddSample(struct sequence *seq, double value, char *label)
 void freeSparklineSequence(struct sequence *seq);
 sds sparklineRenderRange(sds output, struct sequence *seq, int rows, int offset, int len, int flags);
 sds sparklineRender(sds output, struct sequence *seq, int columns, int rows, int flags);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __SPARKLINE_H */
